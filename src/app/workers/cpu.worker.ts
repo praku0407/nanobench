@@ -20,9 +20,9 @@ self.onmessage = (e: MessageEvent) => {
           let sum = 0;
           for (let k = 0; k < MATRIX_SIZE; k++) {
             sum += A[i * MATRIX_SIZE + k] * B[k * MATRIX_SIZE + j];
+            totalOperations += 2;
           }
           C[i * MATRIX_SIZE + j] = sum;
-          totalOperations += 2; 
         }
       }
   

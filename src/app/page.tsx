@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { runGPUStressTest } from '../benchmark/gpu';
-import { supabase } from '../utils/supabase';
 
 type AppState = 'IDLE' | 'CPU_TEST' | 'GPU_TEST' | 'RESULTS' | 'LEADERBOARD';
 
@@ -153,11 +152,16 @@ export default function NanoBenchDashboard() {
 
   const generateAIReport = useCallback(async () => {
     setIsAnalyzing(true);
-    setAiReport('Connecting to analysis engine…');
+    setAiReport('Analyzing hardware profile…');
     try {
-      const res = await fetch('/api/analyst', { method: 'POST', body: JSON.stringify(scores) });
-      const data = await res.json();
-      setAiReport(data.analysis || 'Analysis unavailable.');
+      const prompt = `You are 'NANO-OS', a highly advanced, serene, and professional AI telemetry analyst. The user just ran a computer hardware benchmark. CPU Score: ${scores.cpu} GPU Score: ${scores.gpu}. Write a short, 3-sentence analysis of their hardware. Speak in a calming, reassuring, and clinical tone. If their CPU score is very low compared to the GPU, gently explain that there is a bottleneck and offer supportive, constructive advice on how they might balance their system. Do not use sarcasm.`;
+      const res = await fetch('https://text.pollinations.ai/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }),
+      });
+      const text = await res.text();
+      setAiReport(text || 'Analysis unavailable.');
     } catch {
       setAiReport('Connection failed. Please try again.');
     }
@@ -167,19 +171,30 @@ export default function NanoBenchDashboard() {
   const submitScore = useCallback(async () => {
     if (!username.trim()) return alert('Please enter a username.');
     setIsSubmitting(true);
-    const { error } = await supabase.from('leaderboard').insert([
-      { username: username.trim(), cpu_score: scores.cpu, gpu_score: scores.gpu, overall_score: scores.overall }
-    ]);
-    if (error) { alert('Failed to save score: ' + error.message); setIsSubmitting(false); return; }
-    fetchLeaderboard();
+    try {
+      const res = await fetch('/api/leaderboard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: username.trim(), cpu_score: scores.cpu, gpu_score: scores.gpu, overall_score: scores.overall }),
+      });
+      if (!res.ok) { alert('Failed to save score.'); setIsSubmitting(false); return; }
+      fetchLeaderboard();
+    } catch {
+      alert('Failed to save score.');
+      setIsSubmitting(false);
+    }
   }, [username, scores]);
 
   const fetchLeaderboard = useCallback(async () => {
     setIsSubmitting(true);
-    const { data, error } = await supabase
-      .from('leaderboard').select('*').order('overall_score', { ascending: false }).limit(10);
-    if (error) alert('Failed to load leaderboard: ' + error.message);
-    else { setLeaderboard(data || []); setAppState('LEADERBOARD'); }
+    try {
+      const res = await fetch('/api/leaderboard');
+      const data = await res.json();
+      setLeaderboard(data || []);
+      setAppState('LEADERBOARD');
+    } catch {
+      alert('Failed to load leaderboard.');
+    }
     setIsSubmitting(false);
   }, []);
 
