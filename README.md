@@ -11,18 +11,34 @@
     <img src="https://img.shields.io/badge/Netlify-00C7B7?style=flat-square&logo=netlify&logoColor=white" alt="Netlify"/>
   </p>
   <br/>
+  <p>
+    <a href="https://nanobench.netlify.app/" style="display: inline-block; padding: 14px 36px; border-radius: 40px; background: #76b900; color: #080808; font-size: 18px; font-weight: 700; text-decoration: none; letter-spacing: -0.02em;">
+      🚀 Try NanoBench Live →
+    </a>
+  </p>
+  <br/>
 </div>
 
 ---
 
 ## Overview
 
-NanoBench is a fully client-side hardware benchmarking suite that measures your machine's **CPU** and **GPU** performance directly in the browser — no downloads, no installations, no API keys.
+NanoBench is a fully client-side hardware benchmarking suite that measures your machine's **CPU** and **GPU** performance directly in the browser — no downloads, no installations, no signups, no API keys.
 
-- **CPU Test** — Multi-threaded matrix multiplication via Web Workers
-- **GPU Test** — Trigonometric compute shader dispatched through WebGPU
-- **AI Analysis** — Get a clinical-grade breakdown of your hardware balance via Pollinations.ai
-- **Global Leaderboard** — Compare your scores with others, backed by Netlify Blobs
+Run a single benchmark and get:
+- **CPU Score** — Multi-threaded matrix multiplication via Web Workers, measured in effective GFLOPS
+- **GPU Score** — Heavy trigonometric compute shader dispatched through WebGPU, timed across 15 iterations
+- **Overall Score** — Weighted combination (50/50) of CPU and GPU performance
+- **AI Analysis** — A clinical-grade breakdown of your hardware balance, powered by Pollinations.ai's keyless LLM
+- **Global Leaderboard** — Submit your score with a username and compare against machines worldwide, stored in Netlify Blobs
+
+---
+
+## Try It Now
+
+**👉 [https://nanobench.netlify.app/](https://nanobench.netlify.app/)**
+
+No install, no account, no API key. Open the link in Chrome or Edge (for WebGPU support) and hit **Start Benchmark**.
 
 ---
 
@@ -35,14 +51,15 @@ NanoBench is a fully client-side hardware benchmarking suite that measures your 
 | Language | [TypeScript](https://www.typescriptlang.org/) |
 | Styling | [Tailwind CSS 4](https://tailwindcss.com/) + CSS-in-JS |
 | GPU Compute | [WebGPU](https://www.w3.org/TR/webgpu/) + [WGSL](https://www.w3.org/TR/WGSL/) shaders |
-| CPU Compute | Web Workers |
-| AI | [Pollinations.ai](https://pollinations.ai/) (keyless, serverless) |
-| Storage | [Netlify Blobs](https://docs.netlify.com/blobs/overview/) |
+| CPU Compute | Web Workers (dedicated thread pool) |
+| AI Analysis | [Pollinations.ai](https://pollinations.ai/) (keyless, serverless — no backend) |
+| Data Storage | [Netlify Blobs](https://docs.netlify.com/blobs/overview/) (key-value store) |
+| Serverless Functions | [Netlify Functions](https://docs.netlify.com/functions/overview/) v2 |
 | Animation | [Framer Motion](https://motion.dev/) |
 
 ---
 
-## Getting Started
+## Getting Started (Development)
 
 ```bash
 git clone https://github.com/praku0407/nanobench.git
@@ -52,6 +69,8 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) and hit **Start Benchmark**.
+
+> **Note:** In development mode, the Leaderboard (Submit/View) requires the Netlify Function runtime which only works in production. Run a full build with `npm run build && npm run start` to test the full flow locally, or deploy to Netlify.
 
 ---
 
@@ -66,23 +85,60 @@ Open [http://localhost:3000](http://localhost:3000) and hit **Start Benchmark**.
    └────┘        └──────────┘      └──────────┘     └─────────┘
 ```
 
-1. **CPU** — A Web Worker runs 25 iterations of 400×400 matrix multiplication (O(n³), ~1.6B operations). Score is derived from effective GFLOPS.
-2. **GPU** — A WebGPU compute shader processes 5 million floats through 250 iterations of heavy trigonometric math (sin, cos, tan, sqrt). Score is based on total compute time.
-3. **AI Analysis** — Scores are sent to Pollinations.ai (via llama-3.1-8b-instant) for a calm, clinical breakdown of your system's balance.
-4. **Leaderboard** — Submit your results with a username to store them in Netlify Blobs and see global rankings.
+### 1. CPU Benchmark (`cpu.worker.ts`)
+A **Web Worker** runs 25 iterations of 400×400 matrix multiplication — an O(n³) algorithm processing ~64 million multiply-adds per iteration (~1.6 billion total operations). The worker reports progress back to the UI after each iteration and calculates the final score from effective GFLOPS.
+
+### 2. GPU Benchmark (`gpu.ts`)
+A **WebGPU compute shader** allocates 5 million floats (~20 MB VRAM) and dispatches them across GPU cores in workgroups of 64 threads. Each thread runs 250 iterations of heavy trigonometric math (`sin`, `cos`, `tan`, `sqrt`). The score is derived from total compute time across 15 iterations.
+
+### 3. AI Analysis (`page.tsx`)
+Both scores are sent to **Pollinations.ai** (via a zero-config fetch — no SDK, no API key, no backend) with a prompt asking the model to act as "NANO-OS", a clinical telemetry analyst. The model returns a 3-sentence breakdown of system balance, bottleneck identification, and upgrade suggestions.
+
+### 4. Global Leaderboard
+Users can enter a username and submit their scores via **Netlify Functions** (serverless), which stores the record in **Netlify Blobs**. The leaderboard view fetches and displays the top 10 scores sorted by overall performance.
 
 ---
 
-## Deploy on Netlify
+## Project Structure
 
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/praku0407/nanobench)
+```
+nanobench/
+├── netlify/
+│   ├── functions/
+│   │   └── leaderboard.ts    # Netlify Function: GET (list) + POST (insert)
+│   └── toml                  # Build config + API redirects
+├── public/
+│   └── shaders/
+│       └── stress.wgsl       # WebGPU compute shader
+├── src/
+│   ├── app/
+│   │   ├── workers/
+│   │   │   └── cpu.worker.ts # Web Worker: CPU benchmark
+│   │   ├── globals.css       # Tailwind CSS 4 entry
+│   │   ├── layout.tsx        # Root layout + metadata
+│   │   └── page.tsx          # Main UI (client component)
+│   └── benchmark/
+│       └── gpu.ts            # WebGPU benchmark runner
+├── next.config.ts
+├── netlify.toml
+├── package.json
+├── postcss.config.mjs
+├── tsconfig.json
+└── eslint.config.mjs
+```
 
-The project includes a `netlify.toml` with build config and API redirects.  
-**No environment variables are required.**
+---
 
-1. Push to GitHub
-2. Connect repo in Netlify
-3. Netlify auto-detects the config → `npm run build` → deploys
+## Browser Support
+
+| Feature | Required Browser |
+|---|---|
+| Web Workers | All modern browsers |
+| WebGPU | Chrome 113+, Edge 113+, Opera 99+ |
+| Pollinations.ai fetch | All modern browsers |
+| Netlify Blobs (API) | All modern browsers |
+
+The GPU benchmark requires **WebGPU** support. Chrome and Edge have it enabled by default. Firefox and Safari have it behind experimental flags.
 
 ---
 
@@ -90,7 +146,7 @@ The project includes a `netlify.toml` with build config and API redirects.
 
 **Created by [Kushal H](https://github.com/praku0407)** — original concept, architecture, and development.
 
-**Fine-tuned by [Pranav S](https://github.com/anomalyco)** — optimization, Netlify migration, keyless AI integration, and production polish.
+**Fine-tuned by [Pranav S](https://github.com/anomalyco)** — optimization, Netlify migration, removal of third-party dependencies, keyless AI integration, and production polish.
 
 ---
 
