@@ -52,8 +52,6 @@ No install, no account, no API key. Open the link in Chrome or Edge (for WebGPU 
 | Styling | [Tailwind CSS 4](https://tailwindcss.com/) + CSS-in-JS |
 | GPU Compute | [WebGPU](https://www.w3.org/TR/webgpu/) + [WGSL](https://www.w3.org/TR/WGSL/) shaders |
 | CPU Compute | Web Workers (dedicated thread pool) |
-| AI Analysis | [Pollinations.ai](https://pollinations.ai/) (keyless, serverless — no backend) |
-| Data Storage | [Netlify Blobs](https://docs.netlify.com/blobs/overview/) (key-value store) |
 | Serverless Functions | [Netlify Functions](https://docs.netlify.com/functions/overview/) v2 |
 | Animation | [Framer Motion](https://motion.dev/) |
 
