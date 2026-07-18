@@ -75,7 +75,7 @@ export async function runGPUStressTest(onProgress: (p: number) => void): Promise
     storageBuffer.destroy();
     device.destroy();
 
-    return Math.round(1_000_000 / totalMs);
+    return Math.round(12_000 / totalMs);
   })();
 
   const score = await Promise.race([benchmarkPromise, timeoutPromise]);
