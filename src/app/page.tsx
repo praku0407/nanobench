@@ -391,8 +391,13 @@ export default function NanoBenchDashboard() {
         )}
       </div>
 
-      <footer className="relative z-10 flex justify-center" style={{ borderTop: '1px solid rgba(255,255,255,0.04)', padding: '20px 0 32px' }}>
-        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.18)', letterSpacing: '0.04em' }}>NanoBench · Precision hardware intelligence</span>
+      <footer className="relative z-10 flex flex-col items-center" style={{ borderTop: '1px solid rgba(255,255,255,0.04)', padding: '24px 0 32px', gap: 6 }}>
+        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.18)', letterSpacing: '0.04em' }}>
+          Created by <span style={{ color: 'rgba(255,255,255,0.35)' }}>Kushal H</span> — original concept, architecture, and development.
+        </span>
+        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.18)', letterSpacing: '0.04em' }}>
+          Fine-tuned by <span style={{ color: 'rgba(255,255,255,0.35)' }}>Pranav S</span> — optimization, Netlify migration, removal of third-party dependencies, and production polish.
+        </span>
       </footer>
 
       <style>{`

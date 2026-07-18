@@ -144,7 +144,7 @@ The GPU benchmark requires **WebGPU** support. Chrome and Edge have it enabled b
 
 **Created by [Kushal H](https://github.com/praku0407)** — original concept, architecture, and development.
 
-**Fine-tuned by [Pranav S](https://github.com/anomalyco)** — optimization, Netlify migration, removal of third-party dependencies, keyless AI integration, and production polish.
+**Fine-tuned by [Pranav S](https://github.com/anomalyco)** — optimization, Netlify migration, removal of third-party dependencies, and production polish.
 
 ---
 
