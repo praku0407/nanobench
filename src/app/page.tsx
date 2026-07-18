@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { runGPUStressTest } from '../benchmark/gpu';
 
 type AppState = 'IDLE' | 'CPU_TEST' | 'GPU_TEST' | 'RESULTS' | 'LEADERBOARD';
@@ -73,6 +73,7 @@ function ScoreRing({
 
 function LiveWaveform({ active, color }: { active: boolean; color: string }) {
   const bars = 28;
+  const maxHeight = useMemo(() => Math.floor(Math.random() * 16 + 8), []);
   return (
     <div className="flex items-end gap-[3px] h-8">
       {Array.from({ length: bars }).map((_, i) => (
@@ -87,7 +88,7 @@ function LiveWaveform({ active, color }: { active: boolean; color: string }) {
           }}
         />
       ))}
-      <style>{`@keyframes wave { from { height: 4px; } to { height: ${Math.floor(Math.random() * 16 + 8)}px; } }`}</style>
+      <style>{`@keyframes wave { from { height: 4px; } to { height: ${maxHeight}px; } }`}</style>
     </div>
   );
 }
@@ -142,7 +143,7 @@ export default function NanoBenchDashboard() {
           setScores({ cpu: cpuScore, gpu: gpuScore, overall });
           setAppState('RESULTS');
         } catch {
-          setScores({ cpu: cpuScore, gpu: 0, overall: cpuScore });
+          setScores({ cpu: cpuScore, gpu: 0, overall: Math.floor(cpuScore * 0.5) });
           setAppState('RESULTS');
         }
       }
@@ -310,10 +311,10 @@ export default function NanoBenchDashboard() {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-              {[{ label: 'CPU Score', score: scores.cpu, color: '#76b900' }, { label: 'GPU Score', score: scores.gpu, color: '#a78bfa' }].map(({ label, score, color }) => (
+              {[{ label: 'CPU Score', score: scores.cpu, color: '#76b900', max: 5000 }, { label: 'GPU Score', score: scores.gpu, color: '#a78bfa', max: 10000 }].map(({ label, score, color, max }) => (
                 <div key={label} style={{ background: 'rgba(255,255,255,0.026)', backdropFilter: 'blur(40px)', borderRadius: 24, border: '1px solid rgba(255,255,255,0.07)', padding: '32px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
                   <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', margin: 0 }}>{label}</p>
-                  <ScoreRing score={score} color={color} label="" size={130} />
+                  <ScoreRing score={score} max={max} color={color} label="" size={130} />
                 </div>
               ))}
             </div>

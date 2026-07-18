@@ -1,24 +1,18 @@
-// src/benchmark/gpu.ts
-
 export async function runGPUStressTest(onProgress: (p: number) => void): Promise<number> {
-  // 1. Check if the browser allows direct GPU access
   if (!navigator.gpu) {
     throw new Error('WebGPU is not supported on this browser. Try Chrome or Edge.');
   }
 
-  // 2. Request high-performance access to the graphics card
   const adapter = await navigator.gpu.requestAdapter({ powerPreference: 'high-performance' });
   if (!adapter) throw new Error('Failed to acquire GPU adapter.');
-  
+
   const device = await adapter.requestDevice();
 
-  // 3. Fetch the shader we just wrote in the public folder
   const response = await fetch('/shaders/stress.wgsl');
   const shaderCode = await response.text();
   const shaderModule = device.createShaderModule({ code: shaderCode });
 
-  // 4. Allocate VRAM (Test size: 5 Million floats = ~20MB of GPU Memory)
-  const DATA_SIZE = 5_000_000; 
+  const DATA_SIZE = 5_000_000;
   const bufferSize = DATA_SIZE * Float32Array.BYTES_PER_ELEMENT;
 
   const storageBuffer = device.createBuffer({
@@ -28,10 +22,7 @@ export async function runGPUStressTest(onProgress: (p: number) => void): Promise
 
   const computePipeline = device.createComputePipeline({
     layout: 'auto',
-    compute: {
-      module: shaderModule,
-      entryPoint: 'main',
-    },
+    compute: { module: shaderModule, entryPoint: 'main' },
   });
 
   const bindGroup = device.createBindGroup({
@@ -39,38 +30,55 @@ export async function runGPUStressTest(onProgress: (p: number) => void): Promise
     entries: [{ binding: 0, resource: { buffer: storageBuffer } }],
   });
 
-  // 5. Execution & Measurement
   const ITERATIONS = 15;
-  let totalComputeTime = 0;
+  const WORKGROUP_SIZE = 64;
+  const dispatchCount = Math.ceil(DATA_SIZE / WORKGROUP_SIZE);
 
-  for (let i = 0; i < ITERATIONS; i++) {
-    const commandEncoder = device.createCommandEncoder();
-    const passEncoder = commandEncoder.beginComputePass();
-    passEncoder.setPipeline(computePipeline);
-    passEncoder.setBindGroup(0, bindGroup);
-    
-    // Dispatch threads across the GPU cores
-    passEncoder.dispatchWorkgroups(Math.ceil(DATA_SIZE / 64));
-    passEncoder.end();
-
-    const startTime = performance.now();
-    device.queue.submit([commandEncoder.finish()]);
-    
-    // Wait for the graphics card to physically finish the math
-    await device.queue.onSubmittedWorkDone();
-    const endTime = performance.now();
-    
-    totalComputeTime += (endTime - startTime);
-    
-    // Update the UI
-    onProgress(Math.round(((i + 1) / ITERATIONS) * 100));
+  function dispatchOnce() {
+    const encoder = device.createCommandEncoder();
+    const pass = encoder.beginComputePass();
+    pass.setPipeline(computePipeline);
+    pass.setBindGroup(0, bindGroup);
+    pass.dispatchWorkgroups(dispatchCount);
+    pass.end();
+    device.queue.submit([encoder.finish()]);
+    return device.queue.onSubmittedWorkDone();
   }
 
-  // 6. Cleanup VRAM
-  storageBuffer.destroy();
-  device.destroy();
+  let warmupStart = performance.now();
+  await dispatchOnce();
+  let warmupMs = performance.now() - warmupStart;
 
-  // 7. Calculate Final Score 
-  const score = Math.floor((10000 / totalComputeTime) * 1000);
+  if (warmupMs < 1) warmupMs = 1;
+  const estimatedTotalMs = warmupMs * ITERATIONS;
+
+  const timeoutPromise = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error('GPU benchmark timed out')), 30000)
+  );
+
+  const benchmarkPromise = (async () => {
+    const startTime = performance.now();
+
+    const progressInterval = setInterval(() => {
+      const elapsed = performance.now() - startTime;
+      const pct = Math.min(Math.round((elapsed / estimatedTotalMs) * 90), 90);
+      onProgress(pct);
+    }, 100);
+
+    for (let i = 0; i < ITERATIONS; i++) {
+      await dispatchOnce();
+    }
+
+    clearInterval(progressInterval);
+
+    const totalMs = performance.now() - startTime;
+    storageBuffer.destroy();
+    device.destroy();
+
+    return Math.round(1_000_000 / totalMs);
+  })();
+
+  const score = await Promise.race([benchmarkPromise, timeoutPromise]);
+  onProgress(100);
   return score;
 }
