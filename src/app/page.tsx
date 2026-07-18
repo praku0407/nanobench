@@ -52,7 +52,7 @@ function ScoreRing({
   }, [pct, circ]);
   return (
     <div className="flex flex-col items-center gap-3">
-      <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="score-ring-svg" style={{ transform: 'rotate(-90deg)' }}>
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={6} />
         <circle
           cx={size / 2} cy={size / 2} r={r}
@@ -223,21 +223,22 @@ export default function NanoBenchDashboard() {
 
       {/* Nav */}
       <header
-        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-10 py-5"
+        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 sm:px-8 md:px-10 py-3 sm:py-5"
         style={{ background: 'rgba(8,8,8,0.6)', backdropFilter: 'blur(24px) saturate(180%)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}
       >
-        <button onClick={reset} className="flex items-center gap-2.5" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+        <button onClick={reset} className="flex items-center gap-2 sm:gap-2.5" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
           <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#76b900', boxShadow: '0 0 6px rgba(118,185,0,0.6)' }} />
-          <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.3px', color: 'white' }}>NanoBench</span>
+          <span style={{ fontSize: 14, fontWeight: 600, letterSpacing: '-0.3px', color: 'white' }}>NanoBench</span>
         </button>
-        <nav className="flex items-center gap-6">
+        <nav className="flex items-center gap-3 sm:gap-4 md:gap-6">
           <button
             onClick={fetchLeaderboard}
-            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.6)', borderRadius: 20, padding: '6px 16px', fontSize: 13, fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s ease', fontFamily: 'inherit' }}
+            className="px-3 py-1 sm:px-4 sm:py-1.5"
+            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.6)', borderRadius: 20, fontSize: 12, fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s ease', fontFamily: 'inherit' }}
           >
             Leaderboard
           </button>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>
+          <span className="hidden sm:flex" style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>
             <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#76b900', display: 'inline-block' }} />
             Network Online
           </span>
@@ -277,7 +278,7 @@ export default function NanoBenchDashboard() {
 
         {/* RUNNING */}
         {(appState === 'CPU_TEST' || appState === 'GPU_TEST') && (
-          <div style={{ width: '100%', maxWidth: 560, background: 'rgba(255,255,255,0.026)', backdropFilter: 'blur(40px)', borderRadius: 28, border: '1px solid rgba(255,255,255,0.07)', padding: '52px 48px', animation: 'fadeUp 0.5s ease both' }}>
+          <div className="px-5 sm:px-10 py-8 sm:py-12" style={{ width: '100%', maxWidth: 560, background: 'rgba(255,255,255,0.026)', backdropFilter: 'blur(40px)', borderRadius: 28, border: '1px solid rgba(255,255,255,0.07)', animation: 'fadeUp 0.5s ease both' }}>
             <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.16em', textTransform: 'uppercase', color: accentColor, marginBottom: 36 }}>
               {isCPU ? 'Phase 1 of 2 — CPU' : 'Phase 2 of 2 — GPU'}
             </div>
@@ -302,7 +303,7 @@ export default function NanoBenchDashboard() {
         {/* RESULTS */}
         {appState === 'RESULTS' && (
           <div style={{ width: '100%', maxWidth: 680, display: 'flex', flexDirection: 'column', gap: 24, animation: 'fadeUp 0.6s ease both' }}>
-            <div style={{ background: 'rgba(255,255,255,0.026)', backdropFilter: 'blur(40px)', borderRadius: 28, border: '1px solid rgba(255,255,255,0.07)', padding: '48px 40px', textAlign: 'center' }}>
+            <div className="px-5 sm:px-10 py-8 sm:py-12" style={{ background: 'rgba(255,255,255,0.026)', backdropFilter: 'blur(40px)', borderRadius: 28, border: '1px solid rgba(255,255,255,0.07)', textAlign: 'center' }}>
               <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', margin: '0 0 16px' }}>Overall Score</p>
               <div style={{ fontSize: 'clamp(64px, 12vw, 96px)', fontWeight: 700, letterSpacing: '-0.04em', lineHeight: 1, background: 'linear-gradient(135deg, #fff 50%, rgba(255,255,255,0.5))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontVariantNumeric: 'tabular-nums' }}>
                 <AnimatedCounter target={scores.overall} />
@@ -310,16 +311,16 @@ export default function NanoBenchDashboard() {
               <p style={{ marginTop: 12, fontSize: 13, color: 'rgba(255,255,255,0.25)' }}>Combined CPU + GPU performance index</p>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[{ label: 'CPU Score', score: scores.cpu, color: '#76b900', max: 5000 }, { label: 'GPU Score', score: scores.gpu, color: '#a78bfa', max: 10000 }].map(({ label, score, color, max }) => (
-                <div key={label} style={{ background: 'rgba(255,255,255,0.026)', backdropFilter: 'blur(40px)', borderRadius: 24, border: '1px solid rgba(255,255,255,0.07)', padding: '32px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                <div key={label} className="px-5 sm:px-6 py-6 sm:py-8" style={{ background: 'rgba(255,255,255,0.026)', backdropFilter: 'blur(40px)', borderRadius: 24, border: '1px solid rgba(255,255,255,0.07)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
                   <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', margin: 0 }}>{label}</p>
-                  <ScoreRing score={score} max={max} color={color} label="" size={130} />
+                  <ScoreRing score={score} max={max} color={color} label="" size={110} />
                 </div>
               ))}
             </div>
 
-            <div style={{ background: 'rgba(118,185,0,0.04)', backdropFilter: 'blur(40px)', borderRadius: 24, border: '1px solid rgba(118,185,0,0.12)', padding: '28px 32px' }}>
+            <div className="px-5 sm:px-8 py-6 sm:py-7" style={{ background: 'rgba(118,185,0,0.04)', backdropFilter: 'blur(40px)', borderRadius: 24, border: '1px solid rgba(118,185,0,0.12)' }}>
               <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(118,185,0,0.7)', margin: '0 0 16px' }}>AI Analysis</p>
               {aiReport ? (
                 <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, margin: 0 }}>{aiReport}</p>
@@ -330,13 +331,14 @@ export default function NanoBenchDashboard() {
               )}
             </div>
 
-            <div style={{ background: 'rgba(255,255,255,0.026)', backdropFilter: 'blur(40px)', borderRadius: 24, border: '1px solid rgba(255,255,255,0.07)', padding: '28px 32px' }}>
+            <div className="px-5 sm:px-8 py-6 sm:py-7" style={{ background: 'rgba(255,255,255,0.026)', backdropFilter: 'blur(40px)', borderRadius: 24, border: '1px solid rgba(255,255,255,0.07)' }}>
               <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', margin: '0 0 16px' }}>Submit to Leaderboard</p>
-              <div style={{ display: 'flex', gap: 12 }}>
+              <div className="flex flex-col sm:flex-row gap-3">
                 <input type="text" maxLength={15} placeholder="Your username" value={username} onChange={e => setUsername(e.target.value)}
-                  style={{ flex: 1, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '12px 16px', color: 'white', fontSize: 14, outline: 'none', fontFamily: 'inherit' }}
+                  className="w-full sm:flex-1"
+                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '12px 16px', color: 'white', fontSize: 14, outline: 'none', fontFamily: 'inherit' }}
                 />
-                <button onClick={submitScore} disabled={isSubmitting} style={{ padding: '12px 24px', borderRadius: 10, border: 'none', background: isSubmitting ? 'rgba(255,255,255,0.1)' : 'white', color: isSubmitting ? 'rgba(0,0,0,0.4)' : '#080808', fontSize: 14, fontWeight: 600, cursor: isSubmitting ? 'default' : 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+                <button onClick={submitScore} disabled={isSubmitting} className="w-full sm:w-auto" style={{ padding: '12px 24px', borderRadius: 10, border: 'none', background: isSubmitting ? 'rgba(255,255,255,0.1)' : 'white', color: isSubmitting ? 'rgba(0,0,0,0.4)' : '#080808', fontSize: 14, fontWeight: 600, cursor: isSubmitting ? 'default' : 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
                   {isSubmitting ? 'Saving…' : 'Submit'}
                 </button>
               </div>
@@ -353,23 +355,23 @@ export default function NanoBenchDashboard() {
           <div style={{ width: '100%', maxWidth: 700, animation: 'fadeUp 0.5s ease both' }}>
             <div style={{ marginBottom: 40, textAlign: 'center' }}>
               <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#76b900', margin: '0 0 10px' }}>Global Rankings</p>
-              <h2 style={{ fontSize: 38, fontWeight: 700, letterSpacing: '-0.04em', margin: 0, background: 'linear-gradient(160deg, #fff 40%, rgba(255,255,255,0.4))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              <h2 className="text-3xl sm:text-4xl" style={{ fontWeight: 700, letterSpacing: '-0.04em', margin: 0, background: 'linear-gradient(160deg, #fff 40%, rgba(255,255,255,0.4))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                 Top performers
               </h2>
             </div>
             <div style={{ background: 'rgba(255,255,255,0.026)', backdropFilter: 'blur(40px)', borderRadius: 24, border: '1px solid rgba(255,255,255,0.07)', overflow: 'hidden' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '48px 1fr 120px 120px', padding: '14px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}>
+              <div className="grid grid-cols-[36px_1fr_80px_80px] sm:grid-cols-[48px_1fr_120px_120px] px-4 sm:px-6 py-3 sm:py-3.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}>
                 {['Rank', 'Username', 'CPU / GPU', 'Score'].map((h, i) => (
                   <span key={h} style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)', textAlign: i >= 2 ? 'right' : 'left' }}>{h}</span>
                 ))}
               </div>
               <div style={{ maxHeight: 440, overflowY: 'auto' }}>
                 {leaderboard.length === 0 ? (
-                  <div style={{ padding: '48px 24px', textAlign: 'center', color: 'rgba(255,255,255,0.2)', fontSize: 14 }}>No results recorded yet.</div>
+                  <div className="px-6 py-12" style={{ textAlign: 'center', color: 'rgba(255,255,255,0.2)', fontSize: 14 }}>No results recorded yet.</div>
                 ) : leaderboard.map((record, index) => {
                   const isFirst = index === 0;
                   return (
-                    <div key={record.id} style={{ display: 'grid', gridTemplateColumns: '48px 1fr 120px 120px', padding: '16px 24px', borderBottom: '1px solid rgba(255,255,255,0.04)', alignItems: 'center', background: isFirst ? 'rgba(118,185,0,0.05)' : 'transparent' }}>
+                    <div key={record.id} className="grid grid-cols-[36px_1fr_80px_80px] sm:grid-cols-[48px_1fr_120px_120px] px-4 sm:px-6 py-3 sm:py-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', alignItems: 'center', background: isFirst ? 'rgba(118,185,0,0.05)' : 'transparent' }}>
                       <span style={{ fontSize: 13, fontWeight: 700, color: isFirst ? '#76b900' : 'rgba(255,255,255,0.2)' }}>#{index + 1}</span>
                       <span style={{ fontSize: 14, fontWeight: 500, color: isFirst ? 'white' : 'rgba(255,255,255,0.7)', letterSpacing: '-0.01em' }}>{record.username}</span>
                       <div style={{ textAlign: 'right' }}>
@@ -391,11 +393,11 @@ export default function NanoBenchDashboard() {
         )}
       </div>
 
-      <footer className="relative z-10 flex flex-col items-center" style={{ borderTop: '1px solid rgba(255,255,255,0.04)', padding: '24px 0 32px', gap: 6 }}>
-        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.18)', letterSpacing: '0.04em' }}>
+      <footer className="relative z-10 flex flex-col items-center px-4" style={{ borderTop: '1px solid rgba(255,255,255,0.04)', padding: '20px 0 28px', gap: 4 }}>
+        <span className="text-center" style={{ fontSize: 11, color: 'rgba(255,255,255,0.18)', letterSpacing: '0.04em', lineHeight: 1.4 }}>
           Created by <span style={{ color: 'rgba(255,255,255,0.35)' }}>Kushal H</span> — original concept, architecture, and development.
         </span>
-        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.18)', letterSpacing: '0.04em' }}>
+        <span className="text-center" style={{ fontSize: 11, color: 'rgba(255,255,255,0.18)', letterSpacing: '0.04em', lineHeight: 1.4 }}>
           Fine-tuned by <span style={{ color: 'rgba(255,255,255,0.35)' }}>Pranav S</span> — optimization, Netlify migration, removal of third-party dependencies, and production polish.
         </span>
       </footer>
@@ -407,6 +409,9 @@ export default function NanoBenchDashboard() {
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
         * { box-sizing: border-box; }
+        @media (max-width: 639px) {
+          .score-ring-svg { width: 100px !important; height: 100px !important; }
+        }
       `}</style>
     </main>
   );
