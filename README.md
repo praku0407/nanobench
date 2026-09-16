@@ -477,15 +477,4 @@ This project is licensed under the **MIT License** — see the [LICENSE.txt](LIC
 
 ---
 
-<div align="center">
-  <br/>
-  <p>
-    <strong>Built with ❤️ by <a href="https://github.com/praku0407">praku0407</a> & <a href="https://github.com/p04pranav">p04pranav</a></strong>
-  </p>
-  <p>
-    <a href="https://nanobench.netlify.app/">Live Demo</a> •
-    <a href="https://github.com/praku0407/nanobench/issues">Report Bug</a> •
-    <a href="https://github.com/praku0407/nanobench/issues">Request Feature</a>
-  </p>
-  <br/>
-</div>
+<div align="center"> <br/> <p> <strong>Built with ❤️ by <a href="https://github.com/kushal.h">kushal.h</a> & <a href="https://github.com/pranav-n">pranav n</a></strong> </p> <p> <a href="https://nanobench.netlify.app/">Live Demo</a> • <a href="https://github.com/praku0407/nanobench/issues">Report Bug</a> • <a href="https://github.com/praku0407/nanobench/issues">Request Feature</a> </p> <br/> </div>
