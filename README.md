@@ -26,6 +26,10 @@
     <img src="https://img.shields.io/netlify/nanobench?style=flat-square&logo=netlify&label=deploy" alt="Netlify Status"/>
   </p>
   <br/>
+  <a href="https://nanobench.netlify.app/">
+    <img src="public/screenshot.png" alt="NanoBench UI" width="100%" style="border-radius: 12px; max-width: 800px; box-shadow: 0 4px 24px rgba(0,0,0,0.2);" />
+  </a>
+  <br/>
 </div>
 
 ---
